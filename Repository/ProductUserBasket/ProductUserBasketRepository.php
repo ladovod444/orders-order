@@ -673,6 +673,62 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 		");
 
 
+        /** Получаем остаток и резерв на текущем складе */
+
+        if(class_exists(BaksDevProductsStocksBundle::class) && true === ($this->profile instanceof UserProfileUid))
+        {
+
+            $dbal
+                ->addSelect("JSON_AGG ( 
+                        DISTINCT JSONB_BUILD_OBJECT (
+                            'total', stock.total, 
+                            'reserve', stock.reserve 
+                        )) FILTER (WHERE stock.total > stock.reserve)
+            
+                        AS stock_total",
+                )
+                ->leftJoin(
+                    'product_modification',
+                    ProductStockTotal::class,
+                    'stock',
+                    '
+                    
+                    stock.profile = :stock_profile 
+                    
+                    AND stock.product = product.id
+                    
+                    AND
+                        
+                        CASE 
+                            WHEN product_offer.const IS NOT NULL 
+                            THEN stock.offer = product_offer.const
+                            ELSE stock.offer IS NULL
+                        END
+                            
+                    AND 
+                    
+                        CASE
+                            WHEN product_variation.const IS NOT NULL 
+                            THEN stock.variation = product_variation.const
+                            ELSE stock.variation IS NULL
+                        END
+                        
+                    AND
+                    
+                        CASE
+                            WHEN product_modification.const IS NOT NULL 
+                            THEN stock.modification = product_modification.const
+                            ELSE stock.modification IS NULL
+                        END
+ 
+                ')
+                ->setParameter(
+                    key: 'stock_profile',
+                    value: $this->profile,
+                    type: UserProfileUid::TYPE,
+                );
+        }
+
 
         $dbal->addSelect(
             "
@@ -791,64 +847,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
         );
 
 
-        /** Получаем остаток и резерв на текущем складе */
-
-        if(class_exists(BaksDevProductsStocksBundle::class) && true === ($this->profile instanceof UserProfileUid))
-        {
-            $dbal
-                ->addSelect("JSON_AGG ( 
-                        DISTINCT JSONB_BUILD_OBJECT (
-                            'total', stock.total, 
-                            'reserve', stock.reserve 
-                        )) FILTER (WHERE stock.total > stock.reserve)
-            
-                        AS stock_total",
-                )
-                ->leftJoin(
-                    'product_modification',
-                    ProductStockTotal::class,
-                    'product_stock_total',
-                    '
-                    
-                    product_stock_total.profile = :stock_profile 
-                    
-                    AND stock.product = product.id
-                    
-                    AND
-                        
-                        CASE 
-                            WHEN product_offer.const IS NOT NULL 
-                            THEN product_stock_total.offer = product_offer.const
-                            ELSE product_stock_total.offer IS NULL
-                        END
-                            
-                    AND 
-                    
-                        CASE
-                            WHEN product_variation.const IS NOT NULL 
-                            THEN product_stock_total.variation = product_variation.const
-                            ELSE product_stock_total.variation IS NULL
-                        END
-                        
-                    AND
-                    
-                        CASE
-                            WHEN product_modification.const IS NOT NULL 
-                            THEN product_stock_total.modification = product_modification.const
-                            ELSE product_stock_total.modification IS NULL
-                        END
- 
-                ')
-                ->setParameter(
-                    key: 'stock_profile',
-                    value: $this->profile,
-                    type: UserProfileUid::TYPE,
-                );
-        }
-
-
         /**
-         * Наличие продукции в регионе
+         * Наличие продукции на складе
          * Если подключен модуль складского учета и передан идентификатор профиля
          */
 
