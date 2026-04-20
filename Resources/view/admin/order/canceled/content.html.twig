@@ -1,27 +1,5 @@
 {{ include(_self|replace({ "content.html.twig": baks_settings.device~"/content.html.twig" })) }}
 
-<script nonce='{{ csp_nonce() }}' class='lazy'>
-
-    executeFunc(function()
-    {
-        /* Имя формы */
-        let forms = document.forms.canceled_orders_form;
-
-        if(!forms)
-        {
-            return false;
-        }
-
-        /* событие отправки формы */
-        forms.addEventListener("submit", function(event)
-        {
-            event.preventDefault();
-            submitModalForm(forms);
-            return true;
-        });
-
-        return true;
-    });
-
-
-</script>
+<script nonce='{{ csp_nonce() }}' async class="lazy"
+        data-src="/assets/{{ version }}/orders-order/order_canceled.min.js?v={{ version }}"
+></script>
