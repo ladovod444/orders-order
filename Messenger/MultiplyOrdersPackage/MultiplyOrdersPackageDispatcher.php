@@ -31,6 +31,7 @@ use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusUnpaid;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
@@ -101,6 +102,13 @@ final readonly class MultiplyOrdersPackageDispatcher
          */
         if(true === $OrderEvent->isStatusEquals(OrderStatusUnpaid::class))
         {
+            return;
+        }
+
+        /** Если статус заказа НЕ New «Новый» - Завершаем обработчик */
+        if(false === $OrderEvent->isStatusEquals(OrderStatusNew::class))
+        {
+            $Deduplicator->save();
             return;
         }
 
