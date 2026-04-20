@@ -93,7 +93,6 @@ class OrderEvent extends EntityEvent
     private ?OrderPosting $posting = null;
 
 
-
     /** Статус заказа */
     #[Assert\NotBlank]
     #[ORM\Column(type: OrderStatus::TYPE)]
@@ -128,7 +127,7 @@ class OrderEvent extends EntityEvent
 
     /** Пользователь (Клиент) */
     #[ORM\OneToOne(targetEntity: OrderUser::class, mappedBy: 'event', cascade: ['all'])]
-    private OrderUser $usr;
+    private ?OrderUser $usr = null;
 
     /** Флаг о печати */
     #[ORM\OneToOne(targetEntity: OrderPrint::class, mappedBy: 'event', cascade: ['all'])]
@@ -210,7 +209,22 @@ class OrderEvent extends EntityEvent
 
     public function isDeliveryTypeEquals(mixed $delivery): bool
     {
+        if(false === ($this->usr instanceof OrderUser))
+        {
+            return false;
+        }
+
         return $this->usr->getDelivery()->getDeliveryType()->equals($delivery);
+    }
+
+    public function isPaymentTypeEquals(mixed $payment): bool
+    {
+        if(false === ($this->usr instanceof OrderUser))
+        {
+            return false;
+        }
+
+        return $this->usr->getPayment()->getPayment()->equals($payment);
     }
 
     /**
@@ -218,13 +232,9 @@ class OrderEvent extends EntityEvent
      */
     public function getDelivery(): ?OrderDelivery
     {
-        return $this->usr->getDelivery();
+        return $this->usr?->getDelivery();
     }
 
-    public function isPaymentTypeEquals(mixed $payment): bool
-    {
-        return $this->usr->getPayment()->getPayment()->equals($payment);
-    }
 
     public function getOrderNumber(): ?string
     {
@@ -290,8 +300,13 @@ class OrderEvent extends EntityEvent
     }
 
     /** Идентификатор события профиля клиента */
-    public function getClientProfile(): UserProfileEventUid
+    public function getClientProfile(): UserProfileEventUid|false
     {
+        if(false === ($this->usr instanceof OrderUser))
+        {
+            return false;
+        }
+
         return $this->usr->getClientProfile();
     }
 
