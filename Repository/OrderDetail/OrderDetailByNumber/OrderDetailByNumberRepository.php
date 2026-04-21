@@ -83,6 +83,7 @@ use BaksDev\Services\Entity\Event\Period\ServicePeriod;
 use BaksDev\Services\Entity\Event\Price\ServicePrice;
 use BaksDev\Services\Entity\Service;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
+use BaksDev\Users\Address\Type\AddressField\AddressField;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSectionFieldTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
 use BaksDev\Users\Profile\TypeProfile\Entity\Trans\TypeProfileTrans;
@@ -621,12 +622,19 @@ final class OrderDetailByNumberRepository implements OrderDetailByNumberInterfac
 						'delivery_value', order_delivery_fields.value
 					)
 				
-			) FILTER ( WHERE delivery_field.type = :field_contact ) 
+			) FILTER ( 
+                WHERE delivery_field.type = :field_contact 
+                OR delivery_field.type = :address_field
+			) 
 			AS order_delivery",
         )
             ->setParameter(
                 key: 'field_contact',
                 value: ContactField::TYPE,
+            )
+            ->setParameter(
+                key: 'address_field',
+                value: AddressField::TYPE,
             );
 
 
