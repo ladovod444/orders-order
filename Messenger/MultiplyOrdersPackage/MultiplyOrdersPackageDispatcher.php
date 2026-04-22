@@ -31,7 +31,7 @@ use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusUnpaid;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
@@ -100,15 +100,11 @@ final readonly class MultiplyOrdersPackageDispatcher
          * @note: данная ситуация может возникнуть с Yandex заказами, которые в первую очередь
          * создают заказа со статусом NEW «Новый» для создания резерва в карточке
          */
-        if(true === $OrderEvent->isStatusEquals(OrderStatusUnpaid::class))
+        if(
+            true === $OrderEvent->isStatusEquals(OrderStatusUnpaid::class)
+            || true === $OrderEvent->isStatusEquals(OrderStatusCanceled::class)
+        )
         {
-            return;
-        }
-
-        /** Если статус заказа НЕ New «Новый» - Завершаем обработчик */
-        if(false === $OrderEvent->isStatusEquals(OrderStatusNew::class))
-        {
-            $Deduplicator->save();
             return;
         }
 
