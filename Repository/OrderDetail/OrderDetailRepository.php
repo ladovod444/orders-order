@@ -583,6 +583,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 
         $dbal
             ->addSelect('order_delivery.delivery_date AS order_data')
+            ->addSelect('order_delivery.delivery AS order_delivery_type')
             ->leftJoin(
                 'order_user',
                 OrderDelivery::class,

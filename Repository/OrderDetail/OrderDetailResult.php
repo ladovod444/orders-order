@@ -29,8 +29,16 @@ namespace BaksDev\Orders\Order\Repository\OrderDetail;
 use BaksDev\Auth\Email\Type\Email\AccountEmail;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Ozon\Orders\BaksDevOzonOrdersBundle;
+use BaksDev\Ozon\Orders\Type\DeliveryType\TypeDeliveryDbsOzon;
+use BaksDev\Ozon\Orders\Type\DeliveryType\TypeDeliveryFboOzon;
+use BaksDev\Ozon\Orders\Type\DeliveryType\TypeDeliveryFbsOzon;
 use BaksDev\Payment\Type\Id\PaymentUid;
 use BaksDev\Reference\Money\Type\Money;
+use BaksDev\Wildberries\Orders\BaksDevWildberriesOrdersBundle;
+use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryDbsWildberries;
+use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFboWildberries;
+use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFbsWildberries;
 use DateMalformedStringException;
 use DateTimeImmutable;
 use Symfony\Component\DependencyInjection\Attribute\Exclude;
@@ -77,6 +85,8 @@ final readonly class OrderDetailResult
         private ?string $stocks,
         private ?string $order_services = null,
         private ?string $order_posting = null,
+
+        private ?string $order_delivery_type = null,
     ) {}
 
     public function getOrderId(): OrderUid
@@ -351,4 +361,51 @@ final readonly class OrderDetailResult
     {
         return $this->order_posting;
     }
+
+    /**
+     * Получить тип доставки для маркетплейсов на основе TypeDelivery соотв. модуля
+     */
+    public function getOrderDeliveryType(): ?string
+    {
+        if(class_exists(BaksDevOzonOrdersBundle::class))
+        {
+            if(
+                TypeDeliveryFbsOzon::equals($this->order_delivery_type)
+                || TypeDeliveryDbsOzon::equals($this->order_delivery_type)
+                || TypeDeliveryFboOzon::equals($this->order_delivery_type)
+            )
+            {
+                return 'ozon';
+            }
+        }
+
+
+        // TODO нужно сделать PrintController для yandex-market-products
+        //        if(class_exists(BaksDevYandexMarketOrdersBundle::class))
+        //        {
+        //            if(
+        //                TypeDeliveryFbsYaMarket::equals($this->order_delivery_type)
+        //                || TypeDeliveryDbsYaMarket::equals($this->order_delivery_type)
+        //            )
+        //            {
+        //                return 'yandex';
+        //            }
+        //        }
+
+
+        if(class_exists(BaksDevWildberriesOrdersBundle::class))
+        {
+            if(
+                TypeDeliveryDbsWildberries::equals($this->order_delivery_type)
+                || TypeDeliveryFboWildberries::equals($this->order_delivery_type)
+                || TypeDeliveryFbsWildberries::equals($this->order_delivery_type)
+            )
+            {
+                return 'wildberries';
+            }
+        }
+
+        return $this->order_delivery_type;
+    }
+
 }

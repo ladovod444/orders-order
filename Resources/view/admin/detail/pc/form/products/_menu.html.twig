@@ -46,6 +46,52 @@
                     Удалить из заказа
                 </button>
             </li>
+
+
+            {# Печать штрихкодов  #}
+            {# TODO YaMarket #}
+
+            {% if order.getOrderDeliveryType == 'wildberries' %}
+                <li>
+                    <a class="text-black text-decoration-none dropdown-item print-stickers"
+                       href="{{ path('wildberries-products:admin.barcode.print', {
+                           product: card.getProductEvent,
+                           offer: card.getProductOfferUid,
+                           variation: card.getProductVariationUid,
+                           modification: card.getProductModificationUid,
+                           print: true,
+                           total: product.price.vars.data.total
+                       }) }}"
+
+                       data-bs-toggle="modal"
+                       data-bs-target="#modal"
+                    >
+                        Печать штрихкодов
+                    </a>
+                </li>
+            {% endif %}
+
+            {% if order.getOrderDeliveryType == 'ozon' %}
+                <li>
+                    <a class="text-black text-decoration-none dropdown-item print-stickers"
+                       href="{{ path('ozon-products:admin.barcode.print', {
+                           product: card.getProductEvent,
+                           offer: card.getProductOfferUid,
+                           variation: card.getProductVariationUid,
+                           modification: card.getProductModificationUid,
+                           print: true,
+                           total: product.price.vars.data.total
+                       }) }}"
+
+                       data-bs-toggle="modal"
+                       data-bs-target="#modal"
+                    >
+                        Печать штрихкодов
+                    </a>
+                </li>
+            {% endif %}
+
+
         {% endif %}
 
         {% if stockTotal < 0 %}
