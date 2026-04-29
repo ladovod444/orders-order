@@ -39,6 +39,10 @@ use BaksDev\Wildberries\Orders\BaksDevWildberriesOrdersBundle;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryDbsWildberries;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFboWildberries;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFbsWildberries;
+use BaksDev\Yandex\Market\Orders\BaksDevYandexMarketOrdersBundle;
+use BaksDev\Yandex\Market\Orders\Type\DeliveryType\TypeDeliveryDbsYaMarket;
+use BaksDev\Yandex\Market\Orders\Type\DeliveryType\TypeDeliveryFboYaMarket;
+use BaksDev\Yandex\Market\Orders\Type\DeliveryType\TypeDeliveryFbsYaMarket;
 use DateMalformedStringException;
 use DateTimeImmutable;
 use Symfony\Component\DependencyInjection\Attribute\Exclude;
@@ -380,17 +384,17 @@ final readonly class OrderDetailResult
         }
 
 
-        // TODO нужно сделать PrintController для yandex-market-products
-        //        if(class_exists(BaksDevYandexMarketOrdersBundle::class))
-        //        {
-        //            if(
-        //                TypeDeliveryFbsYaMarket::equals($this->order_delivery_type)
-        //                || TypeDeliveryDbsYaMarket::equals($this->order_delivery_type)
-        //            )
-        //            {
-        //                return 'yandex';
-        //            }
-        //        }
+        if(class_exists(BaksDevYandexMarketOrdersBundle::class))
+        {
+            if(
+                TypeDeliveryFbsYaMarket::equals($this->order_delivery_type)
+                || TypeDeliveryDbsYaMarket::equals($this->order_delivery_type)
+                || TypeDeliveryFboYaMarket::equals($this->order_delivery_type)
+            )
+            {
+                return 'yandex';
+            }
+        }
 
 
         if(class_exists(BaksDevWildberriesOrdersBundle::class))

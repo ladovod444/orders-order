@@ -48,41 +48,36 @@
             </li>
 
 
-            {# Печать штрихкодов  #}
-            {# TODO YaMarket #}
+            {# Печать штрихкодов #}
 
+            {% set params = {
+                product: card.getProductEvent,
+                offer: card.getProductOfferUid,
+                variation: card.getProductVariationUid,
+                modification: card.getProductModificationUid,
+                print: true,
+                total: product.price.vars.data.total
+            } %}
+
+            {% set path = null %}
+
+            {# Сформировать path в зав-ти от типа доставки #}
             {% if order.getOrderDeliveryType == 'wildberries' %}
-                <li>
-                    <a class="text-black text-decoration-none dropdown-item print-stickers"
-                       href="{{ path('wildberries-products:admin.barcode.print', {
-                           product: card.getProductEvent,
-                           offer: card.getProductOfferUid,
-                           variation: card.getProductVariationUid,
-                           modification: card.getProductModificationUid,
-                           print: true,
-                           total: product.price.vars.data.total
-                       }) }}"
-
-                       data-bs-toggle="modal"
-                       data-bs-target="#modal"
-                    >
-                        Печать штрихкодов
-                    </a>
-                </li>
+                {% set path = path('wildberries-products:admin.barcode.print', params) %}
             {% endif %}
 
             {% if order.getOrderDeliveryType == 'ozon' %}
+                {% set path = path('ozon-products:admin.barcode.print', params) %}
+            {% endif %}
+
+            {% if order.getOrderDeliveryType == 'yandex' %}
+                {% set path = path('yandex-market-products:admin.barcode.print', params) %}
+            {% endif %}
+
+            {% if path %}
                 <li>
                     <a class="text-black text-decoration-none dropdown-item print-stickers"
-                       href="{{ path('ozon-products:admin.barcode.print', {
-                           product: card.getProductEvent,
-                           offer: card.getProductOfferUid,
-                           variation: card.getProductVariationUid,
-                           modification: card.getProductModificationUid,
-                           print: true,
-                           total: product.price.vars.data.total
-                       }) }}"
-
+                       href="{{ path }}"
                        data-bs-toggle="modal"
                        data-bs-target="#modal"
                     >
